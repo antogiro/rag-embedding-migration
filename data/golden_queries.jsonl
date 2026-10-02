@@ -1,0 +1,12 @@
+{"id":"timeout-001","query":"Wie erhöhe ich das Timeout für einen Datenimport?","relevant_chunk_ids":["docs/configuration.md#http-timeout"],"segment":"de-config","critical":true}
+{"id":"retry-001","query":"Wie viele Importversuche gibt es standardmäßig und wie ändere ich sie?","relevant_chunk_ids":["docs/configuration.md#retry-policy"],"segment":"de-config","critical":false}
+{"id":"oauth-001","query":"Wo dürfen OAuth Refresh Tokens auf keinen Fall gespeichert werden?","relevant_chunk_ids":["docs/security.md#oauth-refresh"],"segment":"de-security","critical":true}
+{"id":"key-rotation-001","query":"Wie lange funktioniert ein alter API-Schlüssel nach einer Rotation noch?","relevant_chunk_ids":["docs/security.md#api-keys"],"segment":"de-security","critical":true}
+{"id":"postgres-001","query":"Ist PostgreSQL 17 mit Version 2.4 kompatibel?","relevant_chunk_ids":["docs/release-notes.md#v2-4-postgres"],"segment":"de-version","critical":true}
+{"id":"postgres-002","query":"Wird PostgreSQL 17 von Version 2.3 unterstützt?","relevant_chunk_ids":["docs/release-notes.md#v2-3-postgres"],"segment":"de-version","critical":true}
+{"id":"network-001","query":"Was soll ich bei wiederholten Netzwerkfehlern eines Imports prüfen?","relevant_chunk_ids":["docs/troubleshooting.md#network-import"],"segment":"de-troubleshooting","critical":false}
+{"id":"dry-run-001","query":"Wie kann ich eine Migration prüfen, ohne Daten zu verändern?","relevant_chunk_ids":["docs/cli.md#dry-run"],"segment":"de-cli","critical":true}
+{"id":"rollback-001","query":"Wie rolle ich die letzte erfolgreiche Datenbankmigration zurück?","relevant_chunk_ids":["docs/cli.md#rollback"],"segment":"de-cli","critical":true}
+{"id":"workers-001","query":"Welche Einstellung steuert die Anzahl paralleler Importprozesse?","relevant_chunk_ids":["docs/architecture.md#background-workers"],"segment":"de-architecture","critical":false}
+{"id":"roles-001","query":"Welche Berechtigung wird benötigt, um Projekteinstellungen zu verwalten?","relevant_chunk_ids":["docs/access-control.md#project-roles"],"segment":"de-security","critical":false}
+{"id":"logs-001","query":"Wie aktiviere ich JSON-Logs und welche Felder enthalten sie?","relevant_chunk_ids":["docs/observability.md#structured-logs"],"segment":"de-observability","critical":false}

@@ -1,0 +1,25 @@
+[project]
+name = "rag-embedding-migration"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "antogiro", email = "112803507+antogiro@users.noreply.github.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=2.4.6",
+    "sentence-transformers>=6.1.0",
+]
+
+[project.scripts]
+rag-embedding-migration = "rag_embedding_migration:main"
+
+[build-system]
+requires = ["uv_build>=0.12.22,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
