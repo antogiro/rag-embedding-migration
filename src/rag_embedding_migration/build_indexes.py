@@ -1,0 +1,48 @@
+from __future__ import annotations
+
+import argparse
+import json
+
+from rag_embedding_migration.config import ARTIFACTS_DIR, DOCUMENTS_PATH, MODELS
+from rag_embedding_migration.corpus import load_jsonl
+from rag_embedding_migration.embeddings import embed_documents, load_model
+from rag_embedding_migration.index import LocalVectorIndex
+
+def build_index(version: str) -> None:
+    documents = load_jsonl(DOCUMENTS_PATH)
+    model_name = MODELS[version]
+    model = load_model(model_name)
+
+    vectors = embed_documents(model, [document["text"] for document in documents])
+    output_dir = ARTIFACTS_DIR / f"index-{version}"
+
+    LocalVectorIndex(documents, vectors).save(output_dir)
+
+    manifest = {
+        "index_version": version,
+        "embedding_model": model_name,
+        "document_count": len(documents),
+        "vector_dimension": int(vectors.shape[1]),
+    }
+
+    with (output_dir / "manifest.json").open("w", encoding="utf-8") as file:
+        json.dump(manifest, file, ensure_ascii=False, indent=2)
+
+    print(json.dumps(manifest, ensure_ascii=False, indent=2))
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--version",
+        choices=sorted(MODELS),
+        help="Nur einen Index bauen; ohne Argument werden alle gebaut.",
+    )
+    args = parser.parse_args()
+
+    versions = [argparse.version] if args.version else sorted(MODELS)
+    for version in versions:
+        build_index(version)
+
+if __name__ == "__main__":
+    main()
+
