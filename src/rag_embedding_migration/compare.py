@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from rag_embedding_migration import ARTIFACTS_DIR
+from rag_embedding_migration.config import ARTIFACTS_DIR
 
 def load_report(version: str) -> dict:
     with (ARTIFACTS_DIR / f"evaluation-{version}.json").open(encoding="utf-8") as file:
