@@ -87,6 +87,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--version", choices=sorted(MODELS))
     parser.add_argument("--all", action="store_true")
+    args = parser.parse_args()
 
     if not args.version and not args.all:
         parser.error("Bitte --version v1|v2 oder -all angeben.")
