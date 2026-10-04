@@ -8,21 +8,33 @@ from rag_embedding_migration.config import (
     ARTIFACTS_DIR,
     GOLDEN_QUERIES_PATH,
     MODELS,
-    TOP_K
+    TOP_K,
 )
 from rag_embedding_migration.corpus import load_jsonl
 from rag_embedding_migration.embeddings import embed_queries, load_model
 from rag_embedding_migration.index import LocalVectorIndex
 from rag_embedding_migration.metrics import ndcg_at_k, recall_at_k, reciprocal_rank
 
+
 def evaluate(version: str, top_k: int = TOP_K) -> dict:
+    index_dir = ARTIFACTS_DIR / f"index-{version}"
+
+    if not index_dir.exists():
+        raise SystemExit(
+            f"Der Index fehlt: {index_dir}\n"
+            f"Bitte zuerst ausführen:\n"
+            f"  uv run python -m rag_embedding_migration.build_indexes "
+            f"--version {version}"
+        )
+
     queries = load_jsonl(GOLDEN_QUERIES_PATH)
     model = load_model(MODELS[version])
-    index = LocalVectorIndex.load(ARTIFACTS_DIR / f"index-{version}")
+    index = LocalVectorIndex.load(index_dir)
 
     query_vectors = embed_queries(model, [item["query"] for item in queries])
 
     rows = []
+
     for item, vector in zip(queries, query_vectors, strict=True):
         results = index.search(vector, limit=top_k)
         retrieved_ids = [result["id"] for result in results]
@@ -42,30 +54,33 @@ def evaluate(version: str, top_k: int = TOP_K) -> dict:
             }
         )
 
+    critical_rows = [row for row in rows if row["critical"]]
+
     metrics = {
         f"recall_at_{top_k}": sum(row["recall_at_k"] for row in rows) / len(rows),
         f"mrr_at_{top_k}": sum(row["rr"] for row in rows) / len(rows),
         f"ndcg_at_{top_k}": sum(row["ndcg_at_k"] for row in rows) / len(rows),
         "critical_pass_rate": (
-            sum(
-                row["recall_at_k"]
-                for row in rows
-                if row["critical"]
-            )
-            / sum(1 for row in rows if row["critical"])
+            sum(row["recall_at_k"] for row in critical_rows) / len(critical_rows)
+            if critical_rows
+            else 1.0
         ),
     }
 
-    by_segment = defaultdict(list)
+    grouped_rows: dict[str, list[dict]] = defaultdict(list)
     for row in rows:
-        by_segment[row["segement"]].append(row)
+        grouped_rows[row["segment"]].append(row)
 
     segment_metrics = {
         segment: {
-            f"recall_at_{top_k}": sum(row["recall_at_k"] for row in values) / len(values),
-            f"mrr_at_{top_k}": sum(row["rr"] for row in values) / len(values),
+            f"recall_at_{top_k}": sum(
+                row["recall_at_k"] for row in segment_rows
+            ) / len(segment_rows),
+            f"mrr_at_{top_k}": sum(
+                row["rr"] for row in segment_rows
+            ) / len(segment_rows),
         }
-        for segment, values in by_segment.items()
+        for segment, segment_rows in grouped_rows.items()
     }
 
     report = {
@@ -77,20 +92,26 @@ def evaluate(version: str, top_k: int = TOP_K) -> dict:
         "queries": rows,
     }
 
+    ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
     output_path = ARTIFACTS_DIR / f"evaluation-{version}.json"
+
     with output_path.open("w", encoding="utf-8") as file:
         json.dump(report, file, ensure_ascii=False, indent=2)
 
+    print(f"Evaluationsreport geschrieben: {output_path}")
     return report
 
+
 def main() -> None:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="Evaluiert einen oder beide versionierten Retrieval-Indizes."
+    )
     parser.add_argument("--version", choices=sorted(MODELS))
     parser.add_argument("--all", action="store_true")
     args = parser.parse_args()
 
     if not args.version and not args.all:
-        parser.error("Bitte --version v1|v2 oder -all angeben.")
+        parser.error("Bitte --version v1|v2 oder --all angeben.")
 
     versions = sorted(MODELS) if args.all else [args.version]
 
@@ -99,5 +120,6 @@ def main() -> None:
         print(f"\n{version}: {report['embedding_model']}")
         print(json.dumps(report["metrics"], ensure_ascii=False, indent=2))
 
-    if __name__ == "__main__":
-        main()
+
+if __name__ == "__main__":
+    main()
