@@ -32,7 +32,7 @@ class LocalVectorIndex:
 
     @classmethod
     def load(cls, directory:Path) -> LocalVectorIndex:
-        with (directory / "records.json").open(encoding="uft-8") as file:
+        with (directory / "records.json").open(encoding="utf-8") as file:
             records = json.load(file)
 
         vectors = np.load(directory / "vectors.npy")

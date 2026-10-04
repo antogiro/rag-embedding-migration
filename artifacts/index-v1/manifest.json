@@ -1,0 +1,6 @@
+{
+  "index_version": "v1",
+  "embedding_model": "intfloat/multilingual-e5-base",
+  "document_count": 12,
+  "vector_dimension": 768
+}

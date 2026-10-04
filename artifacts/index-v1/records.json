@@ -1,0 +1,98 @@
+[
+  {
+    "id": "docs/configuration.md#http-timeout",
+    "title": "HTTP-Timeout konfigurieren",
+    "text": "Die Umgebungsvariable IMPORT_HTTP_TIMEOUT bestimmt das maximale HTTP-Timeout für Datenimporte in Sekunden. Der Standardwert beträgt 30. Beispiel: IMPORT_HTTP_TIMEOUT=120 erhöht das Timeout auf zwei Minuten.",
+    "version": "2.4",
+    "language": "de",
+    "category": "configuration"
+  },
+  {
+    "id": "docs/configuration.md#retry-policy",
+    "title": "Retry-Verhalten konfigurieren",
+    "text": "IMPORT_RETRY_ATTEMPTS legt fest, wie oft ein fehlgeschlagener Import erneut versucht wird. Der Standardwert ist 3. Zwischen Versuchen verwendet der Importer exponentielles Backoff.",
+    "version": "2.4",
+    "language": "de",
+    "category": "configuration"
+  },
+  {
+    "id": "docs/security.md#oauth-refresh",
+    "title": "OAuth Refresh Tokens",
+    "text": "OAuth Refresh Tokens werden verschlüsselt gespeichert. Sie dürfen nicht in Logs, Fehlermeldungen oder Browser-Local-Storage erscheinen. Beim Widerruf eines Tokens werden aktive Sitzungen beim nächsten Refresh beendet.",
+    "version": "2.4",
+    "language": "de",
+    "category": "security"
+  },
+  {
+    "id": "docs/security.md#api-keys",
+    "title": "API-Schlüssel rotieren",
+    "text": "API-Schlüssel können im Adminbereich rotiert werden. Nach der Rotation bleibt der vorherige Schlüssel 24 Stunden gültig, damit Deployments schrittweise aktualisiert werden können.",
+    "version": "2.4",
+    "language": "de",
+    "category": "security"
+  },
+  {
+    "id": "docs/release-notes.md#v2-4-postgres",
+    "title": "PostgreSQL-Unterstützung in Version 2.4",
+    "text": "Version 2.4 unterstützt PostgreSQL 15, 16 und 17. PostgreSQL 14 wird weiterhin gelesen, erhält aber keine neuen migrationsspezifischen Tests.",
+    "version": "2.4",
+    "language": "de",
+    "category": "release-notes"
+  },
+  {
+    "id": "docs/release-notes.md#v2-3-postgres",
+    "title": "PostgreSQL-Unterstützung in Version 2.3",
+    "text": "Version 2.3 unterstützt PostgreSQL 14, 15 und 16. PostgreSQL 17 wird von dieser Version nicht unterstützt.",
+    "version": "2.3",
+    "language": "de",
+    "category": "release-notes"
+  },
+  {
+    "id": "docs/troubleshooting.md#network-import",
+    "title": "Import scheitert mit Netzwerkfehler",
+    "text": "Bei wiederholten Netzwerkfehlern während eines Imports sollten zuerst DNS-Auflösung, Firewall-Regeln und der Zielendpunkt geprüft werden. Danach können IMPORT_HTTP_TIMEOUT und IMPORT_RETRY_ATTEMPTS erhöht werden.",
+    "version": "2.4",
+    "language": "de",
+    "category": "troubleshooting"
+  },
+  {
+    "id": "docs/cli.md#dry-run",
+    "title": "Migration als Dry Run ausführen",
+    "text": "Der Befehl app migrate --dry-run prüft Migrationen, ohne Datenbankänderungen auszuführen. Er zeigt die geplanten Schritte und beendet sich bei nicht erfüllten Voraussetzungen mit einem Fehlercode.",
+    "version": "2.4",
+    "language": "de",
+    "category": "cli"
+  },
+  {
+    "id": "docs/cli.md#rollback",
+    "title": "Migration zurückrollen",
+    "text": "Der Befehl app migrate rollback setzt die zuletzt erfolgreiche Datenbankmigration zurück. Vor einem Rollback sollte ein Datenbank-Snapshot erstellt und die Anwendung in den Wartungsmodus versetzt werden.",
+    "version": "2.4",
+    "language": "de",
+    "category": "cli"
+  },
+  {
+    "id": "docs/architecture.md#background-workers",
+    "title": "Hintergrund-Worker",
+    "text": "Importe laufen in Hintergrund-Workern. Die Anzahl paralleler Worker wird mit IMPORT_WORKERS konfiguriert. Ein höherer Wert kann den Durchsatz steigern, erhöht aber die Last auf Datenbank und Zielsystem.",
+    "version": "2.4",
+    "language": "de",
+    "category": "architecture"
+  },
+  {
+    "id": "docs/access-control.md#project-roles",
+    "title": "Projektrollen",
+    "text": "Die Rollen Viewer, Editor und Admin steuern den Zugriff auf Projekte. Viewer dürfen Inhalte lesen, Editor dürfen Inhalte ändern und Admin dürfen Mitglieder sowie Projekteinstellungen verwalten.",
+    "version": "2.4",
+    "language": "de",
+    "category": "security"
+  },
+  {
+    "id": "docs/observability.md#structured-logs",
+    "title": "Strukturierte Logs",
+    "text": "Setzen Sie LOG_FORMAT=json, um strukturierte JSON-Logs zu erzeugen. Jede Anfrage enthält request_id, route, status_code und duration_ms. Secrets wie Tokens und API-Schlüssel werden maskiert.",
+    "version": "2.4",
+    "language": "de",
+    "category": "observability"
+  }
+]

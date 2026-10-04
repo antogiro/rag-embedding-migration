@@ -1,0 +1,271 @@
+{
+  "index_version": "v1",
+  "embedding_model": "intfloat/multilingual-e5-base",
+  "top_k": 5,
+  "metrics": {
+    "recall_at_5": 1.0,
+    "mrr_at_5": 0.9583333333333334,
+    "ndcg_at_5": 0.9692441461309548,
+    "critical_pass_rate": 1.0
+  },
+  "segment_metrics": {
+    "de-config": {
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0
+    },
+    "de-security": {
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0
+    },
+    "de-version": {
+      "recall_at_5": 1.0,
+      "mrr_at_5": 0.75
+    },
+    "de-troubleshooting": {
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0
+    },
+    "de-cli": {
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0
+    },
+    "de-architecture": {
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0
+    },
+    "de-observability": {
+      "recall_at_5": 1.0,
+      "mrr_at_5": 1.0
+    }
+  },
+  "queries": [
+    {
+      "id": "timeout-001",
+      "query": "Wie erhöhe ich das Timeout für einen Datenimport?",
+      "segment": "de-config",
+      "critical": true,
+      "relevant_chunk_ids": [
+        "docs/configuration.md#http-timeout"
+      ],
+      "retrieved_chunk_ids": [
+        "docs/configuration.md#http-timeout",
+        "docs/troubleshooting.md#network-import",
+        "docs/architecture.md#background-workers",
+        "docs/configuration.md#retry-policy",
+        "docs/cli.md#rollback"
+      ],
+      "recall_at_k": 1.0,
+      "rr": 1.0,
+      "ndcg_at_k": 1.0
+    },
+    {
+      "id": "retry-001",
+      "query": "Wie viele Importversuche gibt es standardmäßig und wie ändere ich sie?",
+      "segment": "de-config",
+      "critical": false,
+      "relevant_chunk_ids": [
+        "docs/configuration.md#retry-policy"
+      ],
+      "retrieved_chunk_ids": [
+        "docs/configuration.md#retry-policy",
+        "docs/configuration.md#http-timeout",
+        "docs/architecture.md#background-workers",
+        "docs/troubleshooting.md#network-import",
+        "docs/cli.md#dry-run"
+      ],
+      "recall_at_k": 1.0,
+      "rr": 1.0,
+      "ndcg_at_k": 1.0
+    },
+    {
+      "id": "oauth-001",
+      "query": "Wo dürfen OAuth Refresh Tokens auf keinen Fall gespeichert werden?",
+      "segment": "de-security",
+      "critical": true,
+      "relevant_chunk_ids": [
+        "docs/security.md#oauth-refresh"
+      ],
+      "retrieved_chunk_ids": [
+        "docs/security.md#oauth-refresh",
+        "docs/security.md#api-keys",
+        "docs/release-notes.md#v2-3-postgres",
+        "docs/release-notes.md#v2-4-postgres",
+        "docs/cli.md#rollback"
+      ],
+      "recall_at_k": 1.0,
+      "rr": 1.0,
+      "ndcg_at_k": 1.0
+    },
+    {
+      "id": "key-rotation-001",
+      "query": "Wie lange funktioniert ein alter API-Schlüssel nach einer Rotation noch?",
+      "segment": "de-security",
+      "critical": true,
+      "relevant_chunk_ids": [
+        "docs/security.md#api-keys"
+      ],
+      "retrieved_chunk_ids": [
+        "docs/security.md#api-keys",
+        "docs/configuration.md#retry-policy",
+        "docs/cli.md#rollback",
+        "docs/observability.md#structured-logs",
+        "docs/configuration.md#http-timeout"
+      ],
+      "recall_at_k": 1.0,
+      "rr": 1.0,
+      "ndcg_at_k": 1.0
+    },
+    {
+      "id": "postgres-001",
+      "query": "Ist PostgreSQL 17 mit Version 2.4 kompatibel?",
+      "segment": "de-version",
+      "critical": true,
+      "relevant_chunk_ids": [
+        "docs/release-notes.md#v2-4-postgres"
+      ],
+      "retrieved_chunk_ids": [
+        "docs/release-notes.md#v2-3-postgres",
+        "docs/release-notes.md#v2-4-postgres",
+        "docs/security.md#api-keys",
+        "docs/cli.md#dry-run",
+        "docs/architecture.md#background-workers"
+      ],
+      "recall_at_k": 1.0,
+      "rr": 0.5,
+      "ndcg_at_k": 0.6309297535714575
+    },
+    {
+      "id": "postgres-002",
+      "query": "Wird PostgreSQL 17 von Version 2.3 unterstützt?",
+      "segment": "de-version",
+      "critical": true,
+      "relevant_chunk_ids": [
+        "docs/release-notes.md#v2-3-postgres"
+      ],
+      "retrieved_chunk_ids": [
+        "docs/release-notes.md#v2-3-postgres",
+        "docs/release-notes.md#v2-4-postgres",
+        "docs/cli.md#dry-run",
+        "docs/security.md#api-keys",
+        "docs/architecture.md#background-workers"
+      ],
+      "recall_at_k": 1.0,
+      "rr": 1.0,
+      "ndcg_at_k": 1.0
+    },
+    {
+      "id": "network-001",
+      "query": "Was soll ich bei wiederholten Netzwerkfehlern eines Imports prüfen?",
+      "segment": "de-troubleshooting",
+      "critical": false,
+      "relevant_chunk_ids": [
+        "docs/troubleshooting.md#network-import"
+      ],
+      "retrieved_chunk_ids": [
+        "docs/troubleshooting.md#network-import",
+        "docs/configuration.md#retry-policy",
+        "docs/architecture.md#background-workers",
+        "docs/configuration.md#http-timeout",
+        "docs/cli.md#dry-run"
+      ],
+      "recall_at_k": 1.0,
+      "rr": 1.0,
+      "ndcg_at_k": 1.0
+    },
+    {
+      "id": "dry-run-001",
+      "query": "Wie kann ich eine Migration prüfen, ohne Daten zu verändern?",
+      "segment": "de-cli",
+      "critical": true,
+      "relevant_chunk_ids": [
+        "docs/cli.md#dry-run"
+      ],
+      "retrieved_chunk_ids": [
+        "docs/cli.md#dry-run",
+        "docs/release-notes.md#v2-4-postgres",
+        "docs/cli.md#rollback",
+        "docs/architecture.md#background-workers",
+        "docs/troubleshooting.md#network-import"
+      ],
+      "recall_at_k": 1.0,
+      "rr": 1.0,
+      "ndcg_at_k": 1.0
+    },
+    {
+      "id": "rollback-001",
+      "query": "Wie rolle ich die letzte erfolgreiche Datenbankmigration zurück?",
+      "segment": "de-cli",
+      "critical": true,
+      "relevant_chunk_ids": [
+        "docs/cli.md#rollback"
+      ],
+      "retrieved_chunk_ids": [
+        "docs/cli.md#rollback",
+        "docs/cli.md#dry-run",
+        "docs/security.md#api-keys",
+        "docs/architecture.md#background-workers",
+        "docs/security.md#oauth-refresh"
+      ],
+      "recall_at_k": 1.0,
+      "rr": 1.0,
+      "ndcg_at_k": 1.0
+    },
+    {
+      "id": "workers-001",
+      "query": "Welche Einstellung steuert die Anzahl paralleler Importprozesse?",
+      "segment": "de-architecture",
+      "critical": false,
+      "relevant_chunk_ids": [
+        "docs/architecture.md#background-workers"
+      ],
+      "retrieved_chunk_ids": [
+        "docs/architecture.md#background-workers",
+        "docs/configuration.md#retry-policy",
+        "docs/configuration.md#http-timeout",
+        "docs/troubleshooting.md#network-import",
+        "docs/cli.md#dry-run"
+      ],
+      "recall_at_k": 1.0,
+      "rr": 1.0,
+      "ndcg_at_k": 1.0
+    },
+    {
+      "id": "roles-001",
+      "query": "Welche Berechtigung wird benötigt, um Projekteinstellungen zu verwalten?",
+      "segment": "de-security",
+      "critical": false,
+      "relevant_chunk_ids": [
+        "docs/access-control.md#project-roles"
+      ],
+      "retrieved_chunk_ids": [
+        "docs/access-control.md#project-roles",
+        "docs/security.md#api-keys",
+        "docs/architecture.md#background-workers",
+        "docs/release-notes.md#v2-3-postgres",
+        "docs/cli.md#rollback"
+      ],
+      "recall_at_k": 1.0,
+      "rr": 1.0,
+      "ndcg_at_k": 1.0
+    },
+    {
+      "id": "logs-001",
+      "query": "Wie aktiviere ich JSON-Logs und welche Felder enthalten sie?",
+      "segment": "de-observability",
+      "critical": false,
+      "relevant_chunk_ids": [
+        "docs/observability.md#structured-logs"
+      ],
+      "retrieved_chunk_ids": [
+        "docs/observability.md#structured-logs",
+        "docs/security.md#api-keys",
+        "docs/access-control.md#project-roles",
+        "docs/architecture.md#background-workers",
+        "docs/security.md#oauth-refresh"
+      ],
+      "recall_at_k": 1.0,
+      "rr": 1.0,
+      "ndcg_at_k": 1.0
+    }
+  ]
+}
