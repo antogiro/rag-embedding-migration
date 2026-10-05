@@ -39,7 +39,7 @@ def main() -> None:
             print(f"- {query_id}: {old_row['retrieved_chunk_ids']} -> {new_row['retrieved_chunk_ids']}")
 
     else:
-        print("\nKeine Racall@5-Regressionen.")
+        print("\nKeine Recall@5-Regressionen.")
 
 if __name__ == "__main__":
     main()
