@@ -1,0 +1,7 @@
+name: "baseline_model"
+model_name: "sentence-transformers/all-MiniLM-L6-v2"
+description: "Baseline embedding model - small, widely used"
+dimension: 384
+pooling_method: "mean"
+max_seq_length: 256
+device: "cpu"
