@@ -3,6 +3,7 @@ from rag_embedding_migration.evaluate import evaluate
 MAX_RECALL_DROP = 0.02
 MAX_MRR_DROP = 0.02
 
+
 def test_candidate_embedding_model_not_regress() -> None:
     baseline = evaluate("v1")
     candidate = evaluate("v2")
@@ -25,8 +26,9 @@ def test_candidate_embedding_model_not_regress() -> None:
     ), (
         "MRR@5 ist gegenüber dem alten Index zu stark gefallen: "
         f"{baseline_metrics['mrr_at_5']:.3f} -> "
-        f"{candidate_metrics['mrr-at_5']:.3f}"
+        f"{candidate_metrics['mrr_at_5']:.3f}"
     )
+
 
 def test_every_critical_query_has_a_relevant_hit() -> None:
     candidate = evaluate("v2")
