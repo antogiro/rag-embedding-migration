@@ -8,6 +8,7 @@ from rag_embedding_migration.corpus import load_jsonl
 from rag_embedding_migration.embeddings import embed_documents, load_model
 from rag_embedding_migration.index import LocalVectorIndex
 
+
 def build_index(version: str) -> None:
     documents = load_jsonl(DOCUMENTS_PATH)
     model_name = MODELS[version]
@@ -30,6 +31,7 @@ def build_index(version: str) -> None:
 
     print(json.dumps(manifest, ensure_ascii=False, indent=2))
 
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -39,10 +41,10 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    versions = [argparse.version] if args.version else sorted(MODELS)
+    versions = [args.version] if args.version else sorted(MODELS)
     for version in versions:
         build_index(version)
 
+
 if __name__ == "__main__":
     main()
-
