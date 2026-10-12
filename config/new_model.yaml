@@ -1,0 +1,7 @@
+name: "new_model"
+model_name: "BAAI/bge-small-en-v1.5"
+description: "New embedding model - better performance, same size"
+dimension: 384
+pooling_method: "cls"
+max_seq_length: 512
+device: "cpu"
