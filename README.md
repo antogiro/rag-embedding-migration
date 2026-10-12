@@ -1,154 +1,327 @@
-# RAG Embedding Migration: Ein Praxisleitfaden
+# RAG-Embedding-Migration
 
-Ein kleines Praxisprojekt, das zeigt, wie man in produktiven RAG-Systemen ein Embedding-Modell sicher migriert: Reindexing, Dual-Index-Betrieb, Qualitätsvergleich und automatische Regressionserkennung in der CI.
+Ein minimales, lokal laufendes Referenzprojekt, um den Wechsel eines Embedding-Modells in einem produktionsnahen RAG-System kontrolliert zu testen.
+
+Der Wechsel eines Embedding-Modells ist keine einfache Konfigurationsänderung: Vektoren aus unterschiedlichen Modellen sind nicht gegenseitig suchbar. Ein neuer Index muss vollständig aus den Quelldokumenten aufgebaut werden, parallel zum alten Index laufen und gegen einen festen Testdatensatz geprüft werden, bevor er Produktionsverkehr übernimmt.
+
+Dieses Projekt zeigt genau diesen Migrationspfad:
+
+- Zwei versionierte Vektorindizes für zwei Embedding-Modelle
+- Ein Golden Set aus Suchfragen und relevanten Dokument-Chunk-IDs
+- Retrieval-Metriken: Recall@5, MRR@5 und nDCG@5
+- Ein Vergleichsreport für alten und neuen Index
+- Automatische Regressionstests, die eine Qualitätsverschlechterung blockieren
+- Lokale Ausführung ohne Cloud-API, ohne API-Key und ohne Vektordatenbank-Dienst
 
 ## Warum dieses Projekt?
 
-RAG ist 2026 nicht mehr nur ein Experiment, sondern Teil kritischer produktiver Infrastruktur. Gerade bei Embedding-Modellen entsteht jedoch oft ein Problem:
+Ein neues Embedding-Modell kann auf einem allgemeinen Benchmark besser abschneiden und trotzdem im eigenen RAG-System schlechtere Treffer liefern. Benchmarks helfen bei der Vorauswahl, ersetzen aber keine Evaluation auf dem eigenen Dokumentkorpus, den eigenen Abkürzungen, Sprachen, Produktversionen und typischen Nutzerfragen.
 
-- Ein Modell wird abgekündigt oder veraltet
-- Das Reindexing kostet Zeit und Infrastruktur
-- Eine Migration kann die Retrieval-Qualität verschlechtern
-- Ohne Test-Harness ist ein Rollback schwer zu planen
+Ein Embedding-Modellwechsel ist daher eine Datenmigration:
 
-Dieses Projekt zeigt die wichtigsten Schritte einer Embedding-Migration in einer einfachen, nachvollziehbaren Struktur.
+```text
+Alter Zustand
+query --Modell A--> Vektor A --Suche--> Index A
 
-## Quick Start
+Kandidat
+query --Modell B--> Vektor B --Suche--> Index B
+```
 
-### 1) Repository in Codespaces öffnen
+Ein Index B kann erst nach einem bestandenen Qualitätsvergleich freigegeben werden. Solange der Vergleich läuft, bleibt Index A die Rückfalloption.
+
+## Architektur
+
+```text
+data/documents.jsonl
+        │
+        ├── Modell v1: intfloat/multilingual-e5-base
+        │       └── artifacts/index-v1
+        │
+        └── Modell v2: BAAI/bge-m3
+                └── artifacts/index-v2
+
+data/golden_queries.jsonl
+        │
+        ├── Evaluation gegen index-v1
+        │       └── artifacts/evaluation-v1.json
+        │
+        └── Evaluation gegen index-v2
+                └── artifacts/evaluation-v2.json
+
+artifacts/evaluation-v1.json
+artifacts/evaluation-v2.json
+        │
+        └── compare.py
+                └── Vergleichsreport und Regressionen
+
+tests/test_retrieval_regression.py
+        └── CI-Qualitäts-Gate
+```
+
+## Voraussetzungen
+
+- Python 3.11 oder neuer
+- [uv](https://docs.astral.sh/uv/)
+- Keine GPU erforderlich
+- Keine Cloud-API oder kein API-Key erforderlich
+
+`uv` verwaltet die virtuelle Umgebung und Abhängigkeiten. Ein Aufruf von `uv run` stellt sicher, dass das Projekt-Environment mit der Lockdatei synchron ist, bevor der Befehl ausgeführt wird. [104][109]
+
+## Installation
 
 ```bash
-git clone https://github.com/antogiro/rag-embedding-migration.git
+git clone <dein-repository-url>
 cd rag-embedding-migration
+
+uv sync
 ```
 
-### 2) Abhängigkeiten installieren
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3) Baseline-Index erzeugen
-
-```bash
-python scripts/index_baseline.py
-```
-
-Das erzeugt einen ersten Index mit dem Baseline-Modell und zeigt die wichtigsten Kennzahlen an:
-
-- Anzahl Dokumente
-- Embedding-Dimension
-- Indexierungsdauer
-- Indexgröße
-
-### 4) Migration und Vergleich starten
-
-```bash
-python scripts/reindex_new_model.py
-python scripts/evaluate_migration.py
-```
+Beim ersten Lauf werden die Embedding-Modelle aus dem Hugging Face Hub heruntergeladen und lokal im Hugging-Face-Cache gespeichert. Danach laufen weitere Ausführungen schneller.
 
 ## Projektstruktur
 
 ```text
 rag-embedding-migration/
-├── config/
-│   ├── baseline_model.yaml
-│   └── new_model.yaml
 ├── data/
-│   ├── sample_documents.txt
-│   ├── indexes/
-│   └── test_queries.jsonl
-├── eval_harness/
-│   ├── ci_validator.py
-│   └── metrics.py
-├── scripts/
-│   ├── index_baseline.py
-│   ├── reindex_new_model.py
-│   ├── evaluate_migration.py
-│   └── dual_index_demo.py
-├── requirements.txt
-├── README.md
+│   ├── documents.jsonl
+│   └── golden_queries.jsonl
+├── artifacts/
+│   ├── index-v1/
+│   ├── index-v2/
+│   ├── evaluation-v1.json
+│   └── evaluation-v2.json
+├── src/
+│   └── rag_embedding_migration/
+│       ├── config.py
+│       ├── corpus.py
+│       ├── embeddings.py
+│       ├── index.py
+│       ├── metrics.py
+│       ├── build_indexes.py
+│       ├── evaluate.py
+│       └── compare.py
+├── tests/
+│   └── test_retrieval_regression.py
 └── .github/
     └── workflows/
-        └── eval_regression.yml
+        └── retrieval-eval.yml
 ```
 
-## Kernkonzepte
+## Datenformat
 
-### 1. Reindexing
-Ein Modellwechsel bedeutet meistens: Alle Dokumente müssen neu embeddet werden. Das ist nicht nur technisch, sondern auch ein Kosten- und Betriebsproblem.
+### Dokumente
 
-### 2. Dual-Index-Betrieb
-Beim Wechsel auf ein neues Embedding-Modell ist ein Dual-Index-Setup sinnvoll:
+Jede Zeile in `data/documents.jsonl` ist ein eigenständiger Chunk:
 
-- Altes Modell weiter aktiv
-- Neues Modell parallel testen
-- Qualitätsvergleich mit einem Fixdatensatz
-- Stufenweise Umschaltung
-
-### 3. Qualitätsvalidierung
-Beim Modellwechsel müssen Retrieval-Metriken überprüft werden:
-
-- MRR
-- NDCG@K
-- Recall@K
-
-Diese Metriken helfen dabei, Regressionen früh zu erkennen.
-
-### 4. CI-Regressionstest
-Ein einfaches Eval-Harness kann in GitHub Actions in der CI laufen:
-
-- Testqueries mit Referenz-Ergebnissen
-- Qualitätsvergleich Baseline vs. neu
-- Abbruch bei regressiver Qualität
-
-## Konfiguration
-
-Die Modelle werden in `config/` definiert.
-
-### Baseline-Modell
-```yaml
-model_name: "sentence-transformers/all-MiniLM-L6-v2"
-dimension: 384
-pooling_method: "mean"
+```json
+{
+  "id": "docs/configuration.md#http-timeout",
+  "title": "HTTP-Timeout konfigurieren",
+  "text": "Die Umgebungsvariable IMPORT_HTTP_TIMEOUT bestimmt das maximale HTTP-Timeout für Datenimporte in Sekunden.",
+  "version": "2.4",
+  "language": "de",
+  "category": "configuration"
+}
 ```
 
-### Neues Modell
-```yaml
-model_name: "BAAI/bge-small-en-v1.5"
-dimension: 384
-pooling_method: "cls"
+Die `id` muss stabil und eindeutig sein. Sie verbindet eine Nutzerfrage im Golden Set mit dem tatsächlich erwarteten Retrieval-Treffer.
+
+### Golden Set
+
+Jede Zeile in `data/golden_queries.jsonl` beschreibt eine Testfrage:
+
+```json
+{
+  "id": "timeout-001",
+  "query": "Wie erhöhe ich das Timeout für einen Datenimport?",
+  "relevant_chunk_ids": [
+    "docs/configuration.md#http-timeout"
+  ],
+  "segment": "de-config",
+  "critical": true
+}
 ```
 
-## Beispielmodell-Strategie
+| Feld | Bedeutung |
+|---|---|
+| `id` | Stabile Kennung der Testfrage |
+| `query` | Realistische Nutzerfrage |
+| `relevant_chunk_ids` | Chunks, die die Frage direkt oder ausreichend beantworten |
+| `segment` | Auswertungsgruppe, zum Beispiel Sprache, Dokumenttyp oder Produktbereich |
+| `critical` | Wenn `true`, darf diese Frage beim Cutover keinen relevanten Treffer verlieren |
 
-| Strategie | Beschreibung | Risiko | Empfehlung |
-| --- | --- | --- | --- |
-| Big Bang | Alles auf einmal umstellen | Hoch | Nur für kleine / sichere Umgebungen |
-| Dual-Index | Alt und neu parallel betreiben | Mittel | Gute Standardstrategie |
-| Canary | Nur ein Teil des Traffics auf neues Modell | Niedrig | Ideal für Produktion |
+## Nutzung
+
+### 1. Indizes bauen
+
+```bash
+uv run python -m rag_embedding_migration.build_indexes
+```
+
+Dieser Befehl:
+
+- lädt die Dokumente,
+- berechnet Embeddings für Modell v1 und v2,
+- erstellt zwei getrennte Vektorindizes,
+- speichert je Index ein Manifest mit Modellname, Dokumentanzahl und Vektordimension.
+
+Erwartete Ausgabe:
+
+```text
+{
+  "index_version": "v1",
+  "embedding_model": "intfloat/multilingual-e5-base",
+  "document_count": 12,
+  "vector_dimension": 768
+}
+```
+
+```text
+{
+  "index_version": "v2",
+  "embedding_model": "BAAI/bge-m3",
+  "document_count": 12,
+  "vector_dimension": 1024
+}
+```
+
+### 2. Einen einzelnen Index evaluieren
+
+```bash
+uv run python -m rag_embedding_migration.evaluate --version v1
+```
+
+oder:
+
+```bash
+uv run python -m rag_embedding_migration.evaluate --version v2
+```
+
+Der Befehl erzeugt beziehungsweise aktualisiert:
+
+```text
+artifacts/evaluation-v1.json
+artifacts/evaluation-v2.json
+```
+
+### 3. Beide Indizes evaluieren
+
+```bash
+uv run python -m rag_embedding_migration.evaluate --all
+```
+
+Erwartete Ausgabe:
+
+```text
+v1: intfloat/multilingual-e5-base
+{
+  "recall_at_5": 1.0,
+  "mrr_at_5": 0.958,
+  "ndcg_at_5": 0.969,
+  "critical_pass_rate": 1.0
+}
+
+v2: BAAI/bge-m3
+{
+  "recall_at_5": 1.0,
+  "mrr_at_5": 0.958,
+  "ndcg_at_5": 0.969,
+  "critical_pass_rate": 1.0
+}
+```
+
+### 4. Alter und neuer Index vergleichen
+
+```bash
+uv run python -m rag_embedding_migration.compare
+```
+
+Beispiel:
+
+```text
+Alt: intfloat/multilingual-e5-base
+Neu: BAAI/bge-m3
+
+recall_at_5          1.000 -> 1.000 (+0.000)
+mrr_at_5             0.958 -> 0.958 (+0.000)
+ndcg_at_5            0.969 -> 0.969 (+0.000)
+critical_pass_rate   1.000 -> 1.000 (+0.000)
+
+Keine Recall@5-Regressionen.
+```
+
+### 5. Regressionstests ausführen
+
+```bash
+uv run pytest -q
+```
+
+Erwartete Ausgabe bei bestandenem Gate:
+
+```text
+..                                                                                                                      [100%]
+2 passed in 30.89s
+```
+
+## Metriken
+
+| Metrik | Frage | Bedeutung |
+|---|---|---|
+| `recall_at_5` | Wurde mindestens ein relevanter Chunk in den Top 5 gefunden? | Verhindert, dass entscheidende Evidenz überhaupt nicht im Antwortkontext ankommt |
+| `mrr_at_5` | Wie weit oben steht der erste relevante Treffer? | Misst die Position des ersten brauchbaren Treffers |
+| `ndcg_at_5` | Wie gut ist die gesamte Rangfolge? | Wird besonders aussagekräftig, wenn mehrere Treffer unterschiedliche Relevanzgrade haben |
+| `critical_pass_rate` | Haben alle kritischen Fragen einen relevanten Treffer? | Schützt wichtige Release-, Sicherheits- oder Konfigurationsfragen vor Ausfällen |
+
+Ein guter Durchschnittswert ist nicht ausreichend. Ein Kandidatenmodell kann insgesamt leicht besser sein und trotzdem eine kritische Frage verlieren. Deshalb prüft dieses Projekt Gesamtwerte und kritische Einzelfälle getrennt.
+
+## Was die Tests prüfen
+
+`tests/test_retrieval_regression.py` enthält zwei Gates:
+
+### 1. Keine zu starke Verschlechterung
+
+```python
+MAX_RECALL_DROP = 0.02
+MAX_MRR_DROP = 0.02
+```
+
+Der Kandidatenindex darf gegenüber dem Baseline-Index höchstens zwei Prozentpunkte bei Recall@5 und MRR@5 verlieren.
+
+### 2. Kritische Fragen dürfen nicht ausfallen
+
+Für jede Frage mit `"critical": true` muss mindestens ein relevanter Chunk in den Top 5 erscheinen.
+
+## CI ausführen
+
+Der Workflow `.github/workflows/retrieval-eval.yml` läuft bei jedem Push und Pull Request:
+
+```bash
+git add .
+git commit -m "Add embedding migration evaluation"
+git push
+```
+
+Der Workflow baut beide Indizes und führt anschließend die Regressionstests aus. Er scheitert, wenn der Kandidatenindex die definierten Schwellenwerte nicht erreicht.
+
+## Grenzen
+
+Dieses Projekt ist ein Demonstrator, kein vollständiges Produktions-RAG-System.
+
+- Der Vektorindex ist bewusst eine einfache In-Memory-Implementierung. In Produktion gehört er in eine Vektordatenbank oder ein Datenbanksystem mit persistenter Speicherung, Filterung, ACLs und skalierbarer ANN-Suche.
+- Das Golden Set ist klein. Für eine echte Migration sollte es kontinuierlich aus realen Nutzerfragen, Support-Tickets und kritischen Suchfällen wachsen.
+- Das Projekt evaluiert Retrieval, nicht die endgültige LLM-Antwort. Ein guter Treffer ist Voraussetzung für eine gute Antwort, garantiert aber keine korrekte, vollständige oder gut formulierte Antwort.
+- `nDCG@5` hat in diesem kleinen Set begrenzte Aussagekraft, weil jede Frage aktuell genau einen relevanten Chunk hat. Mit mehreren relevanten Chunks und abgestuften Relevanzwerten wird die Metrik informativer.
+- Ein bestandener Test bedeutet nicht, dass Modell B generell besser ist. Er bedeutet nur, dass Modell B für dieses Golden Set die definierte Mindestqualität erreicht.
 
 ## Nächste Schritte
 
-Das Projekt ist bewusst klein und erweiterbar gebaut. Die nächsten logischen Schritte sind:
+- Golden Set auf 30 bis 50 echte Fragen erweitern
+- Mehrere relevante Chunks und Relevanzgrade je Frage definieren
+- Chunking-Version, Modellrevision und Indexparameter im Manifest dokumentieren
+- Shadow Reads gegen den Kandidatenindex einführen
+- Rollback-Routing vom Kandidaten- auf den Baseline-Index testen
+- Optional: ein Decision Model als Relevance Filter oder Reranker für die Top-\(k\)-Treffer ergänzen
 
-1. Test-Queries und Referenz-Ergebnisse hinzufügen
-2. Reindexing-Scripts für neues Modell ergänzen
-3. Qualitätsmetriken in `eval_harness/metrics.py` erweitern
-4. GitHub Actions Workflow für CI-Regression einbauen
-5. Artikel-Text mit den praktischen Ergebnissen ergänzen
+## Lizenz
 
-## Für den Artikel
-
-Dieses Repo ist als Einstieg für einen Praxisartikel gedacht, der alle relevanten Probleme rund um Embedding-Migration behandelt:
-
-- hidden costs von produktiven RAG-Systemen
-- Modellwechsel als Engineering-Problem
-- Qualität vor und nach der Migration
-- Reindexing als Operations-Aufgabe
-- Rollback-Strategien und Sicherheitsnetze
-
-## License
-
-MIT
+Bitte ergänze hier die gewählte Lizenz, zum Beispiel MIT oder Apache-2.0.
