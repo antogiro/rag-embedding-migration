@@ -1,0 +1,9 @@
+Embeddings sind hochdimensionale Vektorrepräsentationen von Text, die es ermöglichen, die semantische Ähnlichkeit zwischen Dokumenten zu messen.
+RAG-Systeme verwenden Embeddings, um relevante Dokumente für eine Abfrage zu finden, bevor eine generative KI-Antwort erstellt wird.
+Die Migration von einem Embedding-Modell zu einem anderen ist eine häufige Aufgabe in produktiven Systemen, wenn ein Modell abgekündigt wird oder bessere Alternativen entstehen.
+Dual-Index-Betrieb ermöglicht es, zwei Embedding-Modelle gleichzeitig zu verwenden, um eine reibungslose Migration ohne Downtime zu ermöglichen.
+Reindexing ist der Prozess der Neuberechnung aller Embeddings mit einem neuen Modell, was erhebliche Rechenressourcen erfordern kann.
+Qualitätsmetriken wie NDCG und MRR helfen dabei, die Retrieving-Performance eines Embedding-Modells zu bewerten.
+Ein Eval-Harness ist eine automatisierte Test-Suite, die Regressionstests für Retrieval-Qualität in der CI durchführt.
+Vector-Datenbanken wie Milvus, Weaviate und Pinecone speichern Embeddings effizient für schnelle Ähnlichkeitssuchen.
+Kontinuierliche Integration (CI) kann automatisiert überprüfen, ob ein neues Embedding-Modell die gleiche oder bessere Qualität aufweist wie das alte.
