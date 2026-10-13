@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 
-from rag_embedding_migration.config import ARTIFACTS_DIR, DOCUMENTS_PATH, MODELS
+from rag_embedding_migration.config import ARTIFACTS_DIR, DOCUMENTS_PATH, INCOMPLETE_INDEX_VERSIONS, MODELS
 from rag_embedding_migration.corpus import load_jsonl
 from rag_embedding_migration.embeddings import embed_documents, load_model
 from rag_embedding_migration.index import LocalVectorIndex
