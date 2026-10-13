@@ -54,7 +54,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    versions = [argparse.version] if args.version else sorted(MODELS)
+    versions = [args.version] if args.version else sorted(MODELS)
     for version in versions:
         build_index(version)
 
