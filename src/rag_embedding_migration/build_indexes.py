@@ -11,10 +11,24 @@ from rag_embedding_migration.index import LocalVectorIndex
 def build_index(version: str) -> None:
     documents = load_jsonl(DOCUMENTS_PATH)
     model_name = MODELS[version]
+
+    excluded_ids = INCOMPLETE_INDEX_VERSIONS.get(version, set())
+    documents = [
+        document
+        for document in documents
+        if document["id"] not in excluded_ids
+    ]
+
     model = load_model(model_name)
 
-    vectors = embed_documents(model, [document["text"] for document in documents])
+    vectors = embed_documents(
+        model,
+        model_name,
+        [document["text"] for document in documents],
+    )
+
     output_dir = ARTIFACTS_DIR / f"index-{version}"
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     LocalVectorIndex(documents, vectors).save(output_dir)
 
@@ -23,6 +37,7 @@ def build_index(version: str) -> None:
         "embedding_model": model_name,
         "document_count": len(documents),
         "vector_dimension": int(vectors.shape[1]),
+        "excluded_chunk_ids": sorted(excluded_ids),
     }
 
     with (output_dir / "manifest.json").open("w", encoding="utf-8") as file:
