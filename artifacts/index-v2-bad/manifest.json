@@ -1,0 +1,9 @@
+{
+  "index_version": "v2-bad",
+  "embedding_model": "BAAI/bge-m3",
+  "document_count": 11,
+  "vector_dimension": 1024,
+  "excluded_chunk_ids": [
+    "docs/release-notes.md#v2-4-postgres"
+  ]
+}
