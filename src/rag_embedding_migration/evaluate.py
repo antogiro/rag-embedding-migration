@@ -31,8 +31,12 @@ def evaluate(version: str, top_k: int = TOP_K) -> dict:
     model = load_model(MODELS[version])
     index = LocalVectorIndex.load(index_dir)
 
-    query_vectors = embed_queries(model, [item["query"] for item in queries])
-
+    query_vectors = embed_queries(
+    model,
+    MODELS[version],
+    [item["query"] for item in queries],
+    )
+    
     rows = []
 
     for item, vector in zip(queries, query_vectors, strict=True):
